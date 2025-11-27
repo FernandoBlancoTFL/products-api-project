@@ -15,8 +15,8 @@ class AuthController {
       
       const { email, password } = req.body;
       
-      // Tu código actual de login...
-      const result = await authService.login(email, password);
+      // Cambia authService por AuthService (con mayúscula)
+      const result = await AuthService.login(email, password);
       
       console.log('=== LOGIN SUCCESS ===');
       res.json(result);
