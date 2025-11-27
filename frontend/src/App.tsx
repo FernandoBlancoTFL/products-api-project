@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 declare const Swal: any;
 
 // const API_URL = 'http://localhost:3000';
@@ -48,12 +48,6 @@ function App() {
     stock: ''
   });
 
-  useEffect(() => {
-    if (token) {
-      fetchProducts();
-    }
-  }, [token]);
-
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -91,23 +85,19 @@ function App() {
     setSuccessMessage('Sesión cerrada');
   };
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     setError('');
-
     try {
       const response = await fetch(`${API_URL}/api/products`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
       const data = await response.json();
-
       if (!response.ok) {
         throw new Error(data.error || 'Error al cargar productos');
       }
-
       setProducts(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -115,7 +105,13 @@ function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      fetchProducts();
+    }
+  }, [token, fetchProducts]);
 
   const handleCreateProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
