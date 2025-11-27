@@ -1,32 +1,37 @@
-import admin from 'firebase-admin';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 import dotenv from 'dotenv';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
 dotenv.config();
 
-// Obtener __dirname en módulos ES
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+let serviceAccount;
 
-let db;
-
-try {
-  // Opción 1: Leer el archivo JSON usando fs (RECOMENDADO)
-  const serviceAccountPath = join(__dirname, 'firebase-credentials.json');
-  const serviceAccount = JSON.parse(readFileSync(serviceAccountPath, 'utf8'));
-  
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  
-  db = admin.firestore();
-  console.log('✅ Firebase conectado exitosamente');
-  
-} catch (error) {
-  console.error('❌ Error al conectar Firebase:', error.message);
-  console.log('⚠️  Continuando sin Firebase - usa credenciales válidas para producción');
+// En producción (Vercel), construir el objeto desde variables de entorno
+if (process.env.NODE_ENV === 'production') {
+  serviceAccount = {
+    type: process.env.FIREBASE_TYPE,
+    project_id: process.env.FIREBASE_PROJECT_ID,
+    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    client_email: process.env.FIREBASE_CLIENT_EMAIL,
+    client_id: process.env.FIREBASE_CLIENT_ID,
+    auth_uri: process.env.FIREBASE_AUTH_URI,
+    token_uri: process.env.FIREBASE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+    client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
+    universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
+  };
+} else {
+  // En desarrollo, leer del archivo JSON
+  serviceAccount = await import('./firebase-credentials.json', {
+    assert: { type: 'json' }
+  }).then(module => module.default);
 }
 
-export { db, admin };
+initializeApp({
+  credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
+
+export { db };
