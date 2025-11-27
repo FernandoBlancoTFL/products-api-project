@@ -2,6 +2,15 @@
 
 Sistema completo de gestión de productos con autenticación JWT, desarrollado con Node.js, Express, Firebase y React + TypeScript. Este proyecto forma parte del proyecto final del curso de NodeJS brindado por talento tech.
 
+## 🌐 Demo en Vivo
+
+**El proyecto está desplegado en Vercel:**  
+🔗 **[Ver aplicación en vivo](https://products-api-project.vercel.app/)**
+
+### 🔑 Credenciales de acceso:
+- **Email:** `admin@test.com`
+- **Contraseña:** `admin123`
+
 ## 🚀 Características
 
 - ✅ Autenticación con JWT
